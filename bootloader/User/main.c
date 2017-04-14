@@ -10,18 +10,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usart.h"
-#include "decodeHex.h"
-#include "ProgramFlash.h"
-#include "xmodem.h"
 #include "interface.h"
-#include "timer.h"
+#include "stm32_iap.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-uint8_t		g_ProgramFlashDataTemp[BUFFER_SIZE];
-uint32_t	g_starTimeTemp=9;//进入BootLoader延时数，单位为秒
-uint32_t	g_UserProgramAddr=0;//用户程序执行地址
-uint32_t	g_HaveGetAddr=0;//获取用户程序执行地址标志，若已经获取则为1
+
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -33,62 +28,69 @@ uint32_t	g_HaveGetAddr=0;//获取用户程序执行地址标志，若已经获取则为1
   */
 int main(void)
 {
+	unsigned short data = 0;
 	uint32_t	*p_VectorValue;
-	uint32_t	t=0;
 	SystemInit();//系统时钟初始化
 	USART_Configuration();//串口1初始化
-	USART1_Timer3_Config();
 	printf("\x0c\0");   //超级终端清屏
-//	printf("\033[1;40;32m");             //设置超级终端背景为黑色，字符为绿色
 	printf("\r\n*******************************************************************************");
-	printf("\r\n************************  BootLoader for STM32F107RC   ************************");
+	printf("\r\n************************  BootLoader for ECU-R-M3      ************************");
 	printf("\r\n***************************  Design by YuNeng @ECU  ***************************");
 	printf("\r\n*****************************   2017.03           *****************************");
 	printf("\r\n*******************************************************************************");
 	printf("\r\n");
-	//BootPut();
-	printf("Press 'h' key for help! \r\n");
-	printf("Press any key to interrupt autoboot:%d",g_starTimeTemp); //
-	for(t=g_starTimeTemp;t!=0;t--)
+
+	//读取0x0800 4000 前4个字节	
+	data = *(unsigned short *)(0x08004000);  //读取更新变量地址
+	printf("%d\n",data);
+	if (data == 0x01)
 	{
-		if(port_inbyte(500)>0)
+		FLASH_Unlock();
+		//擦除APP1扇区
+		while( 0 != FLASH_If_Erase_APP1())
 		{
-		printf("\n\r->");
-		break;
+			printf("Erase APP2 error\n");
 		}
-		else
+		
+		//更新APP2到APP1  将0x0808 0000 开始大小为480KB的代码复制到0x0800 8000开始的起始地址
+		while( 0 != FLASH_IF_APP2_COPY_TO_APP1())
 		{
-		printf("\b%d",g_starTimeTemp);		//显示时间
-		/*此处添加应用程序跳转函数*/
+			printf("IAP error\n");
 		}
-	}
-	if(g_starTimeTemp==0){
-		p_VectorValue=(uint32_t *)AUTO_BOOT_ADDR;
-		/*for(i=8;i!=0;i--){
-			CheckSum+=(*(p_VectorValue++));
-		} */
+		
+		//擦除APP2代码
+		while( 0 != FLASH_If_Erase_APP2())
+		{
+			printf("Erase APP2 error\n");
+		}
+		
+		//将更新标志设置为0 ,表示接下来无需更新 
+		while(FLASH_COMPLETE != FLASH_ErasePage(0x08004000))
+		{}
+		while(FLASH_COMPLETE != FLASH_ProgramHalfWord(0x08004000, 0))
+		{}
+		//更新成功，跳转到程序入口
 		if(*p_VectorValue==0xFFFFFFFF){
-			printf("\n\r->The program is inefficacy!!");
-			printf("\n\r->");
+			printf("\n->The program is inefficacy!!\n");
 		}else{
-			printf("\n\r->Jump to user program!!\n\r");
+			printf("\n->Jump to user program!!\n");
 			__disable_irq();
 			JumpToApplication(AUTO_BOOT_ADDR);
 		}
-		//printf("\n\r->");
 	}
-	//xmodemReceive(CHECK_CRC);
-	while(1)
+	else
 	{
-		CmdLoop(USART_GetChar());
-		//if(getkey()=='j'){JumpToFlash(0x3000);}
-//		t = 0;
-//		t = port_inbyte(10);
-//		if(t!=0){
-//			port_outbyte(t);
-//		}
+		p_VectorValue=(uint32_t *)AUTO_BOOT_ADDR;
+		
+		if(*p_VectorValue==0xFFFFFFFF){
+			printf("\n->The program is inefficacy!!\n");
+		}else{
+			printf("\n->Jump to user program!!\n");
+			__disable_irq();
+			JumpToApplication(AUTO_BOOT_ADDR);
+		}
 	}
-}
 
+}
 
 /*********************************END OF FILE**********************************/

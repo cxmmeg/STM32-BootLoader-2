@@ -12,6 +12,7 @@
 *******************************************************************************/
 #ifndef __STM32_IAP_H__
 #define __STM32_IAP_H__
+#include "stm32f10x.h"
 
 #if defined (STM32F10X_MD) || defined (STM32F10X_MD_VL)
  #define PAGE_SIZE                         (0x400)    /* 1 Kbyte */
@@ -33,6 +34,10 @@ typedef  void (*pFunction)(void);
 
 extern uint8_t JumpToApplication(uint32_t Addr);
 FLASH_Status ProgramDatatoFlash(uint32_t *Address,uint16_t *Data,uint32_t DataNum);
-FLASH_Status ErasePage(uint32_t StartPage,uint32_t EndPage); 
+FLASH_Status ErasePage(uint32_t StartPage,uint32_t EndPage);
+
+uint32_t FLASH_If_Erase_APP1(void);
+uint32_t FLASH_If_Erase_APP2(void);
+uint32_t FLASH_IF_APP2_COPY_TO_APP1(void);
 
 #endif /*__VTBOOTLOADER_H__*/

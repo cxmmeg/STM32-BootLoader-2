@@ -18,7 +18,7 @@
 #include "main.h"
 #include "stm32_iap.h"
 /* Private define ------------------------------------------------------------*/
-#define ApplicationAddress    0x8004000	///<应用程序起始地址
+#define ApplicationAddress    0x8008000	///<应用程序起始地址
 
 
 
@@ -81,3 +81,78 @@ FLASH_Status ErasePage(uint32_t StartPage,uint32_t EndPage)
   *	@}
   */
 
+/**
+  * @brief  This function does an erase of APP1 user flash area
+  * @retval 0: user flash area successfully erased
+  *         1: error occurred
+  */
+uint32_t FLASH_If_Erase_APP1()
+{
+	
+  uint32_t UserStartPage = 0x08008000,PageCount = 240, i = 0;
+
+  for(i = 0x08008000; i < (UserStartPage+PageCount*0x800); i += 0x800)
+  {
+    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
+       be done by word */ 
+    if (FLASH_ErasePage(i) != FLASH_COMPLETE)
+    {
+      /* Error occurred while page erase */
+      return (1);
+    }
+  }
+  
+  return (0);
+}
+
+/**
+  * @brief  This function does an erase of APP2 user flash area
+  * @retval 0: user flash area successfully erased
+  *         1: error occurred
+  */
+uint32_t FLASH_If_Erase_APP2()
+{
+ uint32_t UserStartPage = 0x08080000,PageCount = 256, i = 0;
+
+  for(i = 0x08080000; i < (UserStartPage+PageCount*0x800); i += 0x800)
+  {
+    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
+       be done by word */ 
+    if (FLASH_ErasePage(i) != FLASH_COMPLETE)
+    {
+      /* Error occurred while page erase */
+      return (1);
+    }
+  }
+  
+  return (0);
+}
+
+uint32_t FLASH_IF_APP2_COPY_TO_APP1(void)
+{
+	unsigned int app1addr  = 0x08008000, app2addr = 0x08080000;
+	unsigned int app2data;
+	while (app1addr < 0x0807FFFF)
+	{
+		app2data = *(unsigned int *)(app2addr);
+		
+		if (FLASH_ProgramWord(app1addr, app2data) == FLASH_COMPLETE)
+    {
+     /* Check the written value */
+      if (*(uint32_t*)app1addr != (uint32_t)app2data)
+      {
+        /* Flash content doesn't match SRAM content */
+        return(2);
+      }
+      /* Increment FLASH destination address */
+      app1addr += 4;
+			app2addr += 4;
+    }
+    else
+    {
+      /* Error occurred while writing data in Flash memory */
+      return (1);
+    }
+	}
+	return (0);
+}

@@ -9,10 +9,10 @@
 //*================================================================================================
 #ifndef	__INTERFACE_H
 #define	__INTERFACE_H
+#include "stm32f10x.h"
 
-
-#define		PROM_ADDR	0X8004000
-#define		AUTO_BOOT_ADDR	0X8004000  //16kb
+#define		PROM_ADDR	0X8008000
+#define		AUTO_BOOT_ADDR	0X8008000  //16kb
 
 extern void BootPut(void);
 uint8_t JumpToApplication(uint32_t Addr);

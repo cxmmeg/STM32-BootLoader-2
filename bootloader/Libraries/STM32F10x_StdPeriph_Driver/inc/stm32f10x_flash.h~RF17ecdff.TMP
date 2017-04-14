@@ -253,7 +253,7 @@ typedef enum
 #define OB_STDBY_RST                   ((uint16_t)0x0000) /*!< Reset generated when entering in STANDBY */
 #define IS_OB_STDBY_SOURCE(SOURCE) (((SOURCE) == OB_STDBY_NoRST) || ((SOURCE) == OB_STDBY_RST))
 
-#if 1
+#ifdef STM32F10X_XL
 /**
   * @}
   */
@@ -273,7 +273,7 @@ typedef enum
 /** @defgroup FLASH_Interrupts 
   * @{
   */
-#if 1
+#ifdef STM32F10X_XL
 #define FLASH_IT_BANK2_ERROR                 ((uint32_t)0x80000400)  /*!< FPEC BANK2 error interrupt source */
 #define FLASH_IT_BANK2_EOP                   ((uint32_t)0x80001000)  /*!< End of FLASH BANK2 Operation Interrupt source */
 
@@ -299,7 +299,7 @@ typedef enum
 /** @defgroup FLASH_Flags 
   * @{
   */
-#if 1
+#ifdef STM32F10X_XL
 #define FLASH_FLAG_BANK2_BSY                 ((uint32_t)0x80000001)  /*!< FLASH BANK2 Busy flag */
 #define FLASH_FLAG_BANK2_EOP                 ((uint32_t)0x80000020)  /*!< FLASH BANK2 End of Operation flag */
 #define FLASH_FLAG_BANK2_PGERR               ((uint32_t)0x80000004)  /*!< FLASH BANK2 Program error flag */
@@ -396,7 +396,7 @@ FLASH_Status FLASH_EraseAllBank1Pages(void);
 FLASH_Status FLASH_GetBank1Status(void);
 FLASH_Status FLASH_WaitForLastBank1Operation(uint32_t Timeout);
 
-#if 1
+#ifdef STM32F10X_XL
 /*---- New Functions used only with STM32F10x_XL density devices -----*/
 void FLASH_UnlockBank2(void);
 void FLASH_LockBank2(void);
