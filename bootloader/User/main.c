@@ -12,6 +12,8 @@
 #include "usart.h"
 #include "interface.h"
 #include "stm32_iap.h"
+#include <stm32f10x.h>
+#include <core_cm3.h>
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -20,6 +22,13 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+
+void reboot()
+{
+	__set_FAULTMASK(1);     // 关闭所有中断
+	NVIC_SystemReset();			// 复位
+}
+
 
 /**
   * @brief  串口打印输出
@@ -43,7 +52,8 @@ int main(void)
 	//读取0x0800 4000 前4个字节	
 	data = *(unsigned short *)(0x08004000);  //读取更新变量地址
 	printf("%d\n",data);
-	if (data == 0x01)
+	//1表示需要更新，再比较APP1和APP2是否相同  如果相同则不需要更新(当前程序为最新程序)
+	if (data == 0x01 )
 	{
 		FLASH_Unlock();
 		//擦除APP1扇区
@@ -59,16 +69,19 @@ int main(void)
 		}
 		
 		//擦除APP2代码
+		/*
 		while( 0 != FLASH_If_Erase_APP2())
 		{
 			printf("Erase APP2 error\n");
 		}
+		*/
 		
 		//将更新标志设置为0 ,表示接下来无需更新 
 		while(FLASH_COMPLETE != FLASH_ErasePage(0x08004000))
 		{}
 		while(FLASH_COMPLETE != FLASH_ProgramHalfWord(0x08004000, 0))
 		{}
+		reboot();
 		//更新成功，跳转到程序入口
 		if(*p_VectorValue==0xFFFFFFFF){
 			printf("\n->The program is inefficacy!!\n");
@@ -77,6 +90,7 @@ int main(void)
 			__disable_irq();
 			JumpToApplication(AUTO_BOOT_ADDR);
 		}
+		
 	}
 	else
 	{
@@ -90,7 +104,7 @@ int main(void)
 			JumpToApplication(AUTO_BOOT_ADDR);
 		}
 	}
-
+	
 }
 
 /*********************************END OF FILE**********************************/

@@ -19,9 +19,6 @@
 #include "stm32_iap.h"
 /* Private define ------------------------------------------------------------*/
 #define ApplicationAddress    0x8008000	///<应用程序起始地址
-
-
-
    
 /* Private functions ---------------------------------------------------------*/
 /**
@@ -155,4 +152,29 @@ uint32_t FLASH_IF_APP2_COPY_TO_APP1(void)
     }
 	}
 	return (0);
+}
+
+//比较APP1和APP2的代码 相同则返回0   不同则返回1
+int compareAPP1AndAPP2()
+{
+	unsigned int app1addr  = 0x08008000, app2addr = 0x08080000;
+	unsigned int app1data,app2data;
+	while (app1addr < 0x0807FFFF)
+	{
+		app2data = *(unsigned int *)(app2addr);
+		app1data = *(unsigned int *)(app1addr);
+
+    /* compare data */
+    if ((uint32_t)app1data != (uint32_t)app2data)
+    {
+        //不相同返回1
+        return(1);
+    }
+    /* Increment FLASH destination address */
+    app1addr += 4;
+		app2addr += 4;
+    
+	}
+	return (0);
+	
 }

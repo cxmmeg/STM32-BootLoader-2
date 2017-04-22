@@ -308,7 +308,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x40000</Size>
+                <Size>0x100000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -609,39 +609,14 @@
               <FilePath>..\User\usart.c</FilePath>
             </File>
             <File>
-              <FileName>crc16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\crc16.c</FilePath>
-            </File>
-            <File>
-              <FileName>decodeHex.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\decodeHex.c</FilePath>
-            </File>
-            <File>
-              <FileName>interface.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\interface.c</FilePath>
-            </File>
-            <File>
-              <FileName>ProgramFlash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\ProgramFlash.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32_iap.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\stm32_iap.c</FilePath>
             </File>
             <File>
-              <FileName>timer.c</FileName>
+              <FileName>interface.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>xmodem.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\xmodem.c</FilePath>
+              <FilePath>..\User\interface.c</FilePath>
             </File>
           </Files>
         </Group>

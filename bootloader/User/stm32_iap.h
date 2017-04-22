@@ -39,5 +39,6 @@ FLASH_Status ErasePage(uint32_t StartPage,uint32_t EndPage);
 uint32_t FLASH_If_Erase_APP1(void);
 uint32_t FLASH_If_Erase_APP2(void);
 uint32_t FLASH_IF_APP2_COPY_TO_APP1(void);
+int compareAPP1AndAPP2(void);
 
 #endif /*__VTBOOTLOADER_H__*/
